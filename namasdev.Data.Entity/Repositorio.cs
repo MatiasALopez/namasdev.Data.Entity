@@ -8,7 +8,7 @@ using namasdev.Core.Validation;
 
 namespace namasdev.Data.Entity
 {
-    public abstract class RepositorioBase<TDbContext, TEntidad, TId> : RepositorioSoloLecturaBase<TDbContext, TEntidad, TId>, IRepositorio<TEntidad, TId>
+    public class Repositorio<TDbContext, TEntidad, TId> : RepositorioSoloLectura<TDbContext, TEntidad, TId>, IRepositorio<TEntidad, TId>
         where TDbContext : DbContextBase, new()
         where TEntidad : class, IEntidad<TId>, new()
         where TId : IEquatable<TId>

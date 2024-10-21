@@ -43,8 +43,8 @@
     <Reference Include="namasdev.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\namasdev.Core.1.0.1\lib\net45\namasdev.Core.dll</HintPath>
     </Reference>
-    <Reference Include="namasdev.Data">
-      <HintPath>..\packages\namasdev.Data\namasdev.Data.dll</HintPath>
+    <Reference Include="namasdev.Data, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\namasdev.Data.1.0.0\lib\net45\namasdev.Data.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -65,8 +65,8 @@
     <Compile Include="IQueryableExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DbContextHelper.cs" />
-    <Compile Include="RepositorioBase.cs" />
-    <Compile Include="RepositorioSoloLecturaBase.cs" />
+    <Compile Include="Repositorio.cs" />
+    <Compile Include="RepositorioSoloLectura.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

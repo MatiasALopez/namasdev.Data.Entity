@@ -6,7 +6,7 @@ using namasdev.Core.Types;
 
 namespace namasdev.Data.Entity
 {
-    public abstract class RepositorioSoloLecturaBase<TDbContext, TEntidad, TId> : IRepositorioSoloLectura<TEntidad,TId>
+    public class RepositorioSoloLectura<TDbContext, TEntidad, TId> : IRepositorioSoloLectura<TEntidad,TId>
         where TDbContext : DbContextBase, new()
         where TEntidad : class, IEntidad<TId>, new()
         where TId : IEquatable<TId>
