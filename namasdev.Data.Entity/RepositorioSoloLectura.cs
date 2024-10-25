@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
+using namasdev.Core.Entity;
 using namasdev.Core.Types;
 
 namespace namasdev.Data.Entity

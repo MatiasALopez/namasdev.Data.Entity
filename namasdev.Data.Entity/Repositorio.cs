@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Linq.Dynamic;
 
+using namasdev.Core.Entity;
 using namasdev.Core.Validation;
 
 namespace namasdev.Data.Entity
@@ -37,6 +38,44 @@ namespace namasdev.Data.Entity
         public virtual void Actualizar(TEntidad entidad)
         {
             DbContextHelper<TDbContext>.Actualizar(entidad);
+        }
+
+        public virtual void ActualizarPropiedades(IEnumerable<TEntidad> entidades, 
+            int tamañoBatch = TAMAÑO_BATCH_DEFAULT, 
+            params string[] propiedades)
+        {
+            DbContextHelper<TDbContext>.ActualizarPropiedadesEnBatch(entidades, propiedades, tamañoBatch);
+        }
+
+        public virtual void ActualizarPropiedades(TEntidad entidad, params string[] propiedades)
+        {
+            DbContextHelper<TDbContext>.ActualizarPropiedades(entidad, propiedades);
+        }
+
+        public virtual void ActualizarDatosBorrado(TEntidad entidad)
+        {
+            var e = entidad as IEntidadBorrado;
+            if (e == null)
+            {
+                return;
+            }
+                
+            DbContextHelper<TDbContext>.ActualizarPropiedades(entidad, 
+                nameof(e.BorradoPor),
+                nameof(e.BorradoFecha));
+        }
+
+        public virtual void ActualizarDatosBorrado(IEnumerable<TEntidad> entidades, int tamañoBatch = TAMAÑO_BATCH_DEFAULT)
+        {
+            if (typeof(TEntidad) is IEntidadBorrado)
+            {
+                DbContextHelper<TDbContext>.ActualizarPropiedadesEnBatch(entidades, 
+                    new[] {
+                        nameof(IEntidadBorrado.BorradoPor),
+                        nameof(IEntidadBorrado.BorradoFecha)
+                    }, 
+                    tamañoBatch);
+            }
         }
 
         public virtual void Eliminar(IEnumerable<TEntidad> entidades,

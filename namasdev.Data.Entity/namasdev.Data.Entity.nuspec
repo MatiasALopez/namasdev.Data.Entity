@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>namasdev.Data.Entity</id>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <title>namasdev Data Entity</title>
     <authors>Matias Alberto Lopez</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -14,8 +14,8 @@
     <copyright>2024</copyright>
     <tags>namasdev</tags>
     <dependencies>
-      <dependency id="namasdev.Core" version="1.0.1" />
-      <dependency id="namasdev.Data" version="1.0.0" />
+      <dependency id="namasdev.Core" version="1.0.2" />
+      <dependency id="namasdev.Data" version="1.0.3" />
     </dependencies>
   </metadata>
 </package>

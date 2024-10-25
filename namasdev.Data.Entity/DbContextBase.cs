@@ -6,6 +6,8 @@ using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 
+using namasdev.Core.Entity;
+
 namespace namasdev.Data.Entity
 {
     public class DbContextBase : DbContext
@@ -27,25 +29,27 @@ namespace namasdev.Data.Entity
             modelBuilder.Configurations.AddFromAssembly(GetType().Assembly);
         }
 
-        public void Attach<T>(T entidad, EntityState state)
+        public void Attach<T>(T entidad, EntityState state,
+            string[] propiedadesAExcluirEnModificacion = null)
             where T : class
         {
             Set<T>().Attach(entidad);
+            var entry = Entry(entidad);
+            entry.State = state;
 
-            var entidadCreado = entidad as IEntidadCreado;
-            if (entidadCreado != null
-                && state == EntityState.Modified)
+            if (state == EntityState.Modified)
             {
-                var entry = Entry(entidadCreado);
-                entry.State = state;
+                if (entidad is IEntidadCreado 
+                    && propiedadesAExcluirEnModificacion == null)
+                {
+                    propiedadesAExcluirEnModificacion = new[]
+                    {
+                        nameof(IEntidadCreado.CreadoPor),
+                        nameof(IEntidadCreado.CreadoFecha),
+                    };
+                }
 
-                entry.Property(e => e.CreadoFecha).IsModified =
-                entry.Property(e => e.CreadoPor).IsModified =
-                    false;
-            }
-            else
-            {
-                Entry(entidad).State = state;
+                EstablecerStatusModificadoDePropiedades(entry, false, propiedadesAExcluirEnModificacion);
             }
         }
 
@@ -53,12 +57,18 @@ namespace namasdev.Data.Entity
             where T : class
         {
             Set<T>().Attach(entidad);
+            EstablecerStatusModificadoDePropiedades(Entry(entidad), true, propiedades);
+        }
 
-            var entry = Entry(entidad);
-
-            foreach (string p in propiedades)
+        public void EstablecerStatusModificadoDePropiedades<T>(DbEntityEntry<T> entry, bool modificado, string[] propiedades)
+            where T : class
+        {
+            if (propiedades != null)
             {
-                entry.Property(p).IsModified = true;
+                foreach (string p in propiedades)
+                {
+                    entry.Property(p).IsModified = modificado;
+                }
             }
         }
 

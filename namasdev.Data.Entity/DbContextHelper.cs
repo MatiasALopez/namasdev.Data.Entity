@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 
+using namasdev.Core.Entity;
+using namasdev.Core.Validation;
+
 namespace namasdev.Data.Entity
 {
     public class DbContextHelper<TDbContext>
@@ -16,68 +19,66 @@ namespace namasdev.Data.Entity
         public static void Agregar<T>(T entidad)
             where T : class
         {
-            Operacion(entidad, EntityState.Added);
+            AttachYSaveChanges(entidad, EntityState.Added);
         }
 
-        public static void Actualizar<T>(T entidad)
+        public static void AgregarBatch<T>(IEnumerable<T> entidades,
+            int tamañoBatch = 100)
             where T : class
         {
-            Operacion(entidad, EntityState.Modified);
+            AttachEnBatch(entidades, EntityState.Added, 
+                tamañoBatch: tamañoBatch);
+        }
+
+        public static void Actualizar<T>(T entidad,
+            bool excluirPropiedadesBorrado = true)
+            where T : class
+        {
+            AttachYSaveChanges(entidad, EntityState.Modified,
+                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(excluirPropiedadesBorrado));
+        }
+
+        public static void ActualizarBatch<T>(IEnumerable<T> entidades,
+            bool excluirPropiedadesBorrado = true,
+            int tamañoBatch = 100)
+            where T : class
+        {
+            AttachEnBatch(entidades, EntityState.Modified,
+                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(excluirPropiedadesBorrado),
+                tamañoBatch: tamañoBatch);
         }
 
         public static void Eliminar<T>(T entidad)
             where T : class
         {
-            Operacion(entidad, EntityState.Deleted);
+            AttachYSaveChanges(entidad, EntityState.Deleted);
         }
 
-        private static void Operacion<T>(T entidad, EntityState state)
+        public static void EliminarBatch<T>(IEnumerable<T> entidades,
+            int tamañoBatch = 100)
+            where T : class
+        {
+            AttachEnBatch(entidades, EntityState.Deleted, 
+                tamañoBatch: tamañoBatch);
+        }
+
+        private static void AttachYSaveChanges<T>(T entidad, EntityState state,
+            string[] propiedadesAExcluirEnModificacion = null)
             where T : class
         {
             using (var ctx = new TDbContext())
             {
-                ctx.Attach(entidad, state);
+                ctx.Attach(entidad, state, 
+                    propiedadesAExcluirEnModificacion: propiedadesAExcluirEnModificacion);
+
                 ctx.SaveChanges();
             }
-        }
-
-        public static void AgregarBatch<T>(IEnumerable<T> entidades,
-            int tamañoBatch = 100) 
-            where T : class
-        {
-            OperacionEnBatch(entidades, EntityState.Added, tamañoBatch);
-        }
-
-        public static void ActualizarBatch<T>(IEnumerable<T> entidades,
-            int tamañoBatch = 100) 
-            where T : class
-        {
-            OperacionEnBatch(entidades, EntityState.Modified, tamañoBatch);
-        }
-
-        public static void EliminarBatch<T>(IEnumerable<T> entidades,
-            int tamañoBatch = 100) 
-            where T : class
-        {
-            OperacionEnBatch(entidades, EntityState.Deleted, tamañoBatch);
-        }
-
-        public static void OperacionEnBatch<T>(IEnumerable<T> entidades, EntityState state,
-            int tamañoBatch = 100) 
-            where T : class
-        {
-            AccionEnBatch(entidades,
-                (ctx, entidad) => ctx.Attach(entidad, state),
-                tamañoBatch: tamañoBatch);
         }
 
         public static void ActualizarPropiedades<T>(T entidad, params string[] propiedades)
            where T : class
         {
-            if (propiedades == null)
-            {
-                throw new ArgumentNullException(nameof(propiedades));
-            }
+            Validador.ValidarArgumentListaRequeridaYThrow(propiedades, nameof(propiedades), validarNoVacia: false);
 
             if (!propiedades.Any())
             {
@@ -97,10 +98,7 @@ namespace namasdev.Data.Entity
             int tamañoBatch = 100)
             where T : class
         {
-            if (propiedades == null)
-            {
-                throw new ArgumentNullException(nameof(propiedades));
-            }
+            Validador.ValidarArgumentListaRequeridaYThrow(propiedades, nameof(propiedades), validarNoVacia: false);
 
             if (!propiedades.Any())
             {
@@ -118,25 +116,29 @@ namespace namasdev.Data.Entity
                 });
         }
 
-        public static void AccionEnBatch<T>(IEnumerable<T> entidades, Action<TDbContext, T> accion,
+        private static void AttachEnBatch<T>(IEnumerable<T> entidades, EntityState state,
+            string[] propiedadesAExcluirEnModificacion = null,
+            int tamañoBatch = 100)
+            where T : class
+        {
+            AccionEnBatch(entidades,
+                (ctx, entidad) => ctx.Attach(entidad, state, propiedadesAExcluirEnModificacion),
+                tamañoBatch: tamañoBatch);
+        }
+
+        private static void AccionEnBatch<T>(IEnumerable<T> entidades, Action<TDbContext, T> accion,
             int tamañoBatch = 100,
             Func<TDbContext> crearCtx = null) 
             where T : class
         {
-            if (entidades == null)
-            {
-                throw new ArgumentNullException(nameof(entidades));
-            }
+            Validador.ValidarArgumentListaRequeridaYThrow(entidades, nameof(entidades), validarNoVacia: false);
 
             if (!entidades.Any())
             {
                 return;
             }
 
-            if (tamañoBatch > 100)
-            {
-                tamañoBatch = 100;
-            }
+            tamañoBatch = Math.Min(100, tamañoBatch);
 
             crearCtx = crearCtx ?? (() => new TDbContext());
 
@@ -172,6 +174,17 @@ namespace namasdev.Data.Entity
                     ctx.Dispose();
                 }
             }
+        }
+
+        private static string[] CrearPropiedadesAExcluirEnModificacion(bool excluirPropiedadesBorrado)
+        {
+            return excluirPropiedadesBorrado
+                ? new[]
+                    {
+                        nameof(IEntidadBorrado.BorradoPor),
+                        nameof(IEntidadBorrado.BorradoFecha)
+                    }
+                : null;
         }
     }
 }
