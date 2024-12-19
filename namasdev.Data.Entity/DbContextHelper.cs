@@ -31,20 +31,30 @@ namespace namasdev.Data.Entity
         }
 
         public static void Actualizar<T>(T entidad,
+            bool excluirPropiedadesCreado = true,
             bool excluirPropiedadesBorrado = true)
             where T : class
         {
-            AttachYSaveChanges(entidad, EntityState.Modified,
-                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(excluirPropiedadesBorrado));
+            AttachYSaveChanges(
+                entidad, 
+                EntityState.Modified,
+                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(
+                    excluirPropiedadesCreado: excluirPropiedadesCreado,
+                    excluirPropiedadesBorrado: excluirPropiedadesBorrado));
         }
 
         public static void ActualizarBatch<T>(IEnumerable<T> entidades,
+            bool excluirPropiedadesCreado = true, 
             bool excluirPropiedadesBorrado = true,
             int tamañoBatch = 100)
             where T : class
         {
-            AttachEnBatch(entidades, EntityState.Modified,
-                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(excluirPropiedadesBorrado),
+            AttachEnBatch(
+                entidades, 
+                EntityState.Modified,
+                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(
+                    excluirPropiedadesCreado: excluirPropiedadesCreado,
+                    excluirPropiedadesBorrado: excluirPropiedadesBorrado),
                 tamañoBatch: tamañoBatch);
         }
 
@@ -176,14 +186,29 @@ namespace namasdev.Data.Entity
             }
         }
 
-        private static string[] CrearPropiedadesAExcluirEnModificacion(bool excluirPropiedadesBorrado)
+        private static string[] CrearPropiedadesAExcluirEnModificacion(bool excluirPropiedadesCreado, bool excluirPropiedadesBorrado)
         {
-            return excluirPropiedadesBorrado
-                ? new[]
-                    {
-                        nameof(IEntidadBorrado.BorradoPor),
-                        nameof(IEntidadBorrado.BorradoFecha)
-                    }
+            var propiedades = new List<string>();
+
+            if (excluirPropiedadesCreado)
+            {
+                propiedades.AddRange(new[]
+                {
+                    nameof(IEntidadCreado.CreadoPor),
+                    nameof(IEntidadCreado.CreadoFecha)
+                });
+            }
+            if (excluirPropiedadesBorrado)
+            {
+                propiedades.AddRange(new[]
+                {
+                    nameof(IEntidadBorrado.BorradoPor),
+                    nameof(IEntidadBorrado.BorradoFecha)
+                });
+            }
+
+            return propiedades.Any()
+                ? propiedades.ToArray()
                 : null;
         }
     }
