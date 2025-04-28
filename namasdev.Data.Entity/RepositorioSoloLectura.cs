@@ -44,13 +44,11 @@ namespace namasdev.Data.Entity
             }
         }
 
-        public IEnumerable<TEntidad> ObtenerLista(
-            OrdenYPaginacionParametros op = null)
+        public IEnumerable<TEntidad> ObtenerLista()
         {
             using (var ctx = new TDbContext())
             {
                 return ctx.Set<TEntidad>()
-                    .OrdenarYPaginar(op)
                     .ToArray();
             }
         }
