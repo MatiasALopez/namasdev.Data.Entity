@@ -38,7 +38,7 @@ namespace namasdev.Data.Entity
             AttachYSaveChanges(
                 entidad, 
                 EntityState.Modified,
-                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(
+                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion<T>(
                     excluirPropiedadesCreado: excluirPropiedadesCreado,
                     excluirPropiedadesBorrado: excluirPropiedadesBorrado));
         }
@@ -52,7 +52,7 @@ namespace namasdev.Data.Entity
             AttachEnBatch(
                 entidades, 
                 EntityState.Modified,
-                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion(
+                propiedadesAExcluirEnModificacion: CrearPropiedadesAExcluirEnModificacion<T>(
                     excluirPropiedadesCreado: excluirPropiedadesCreado,
                     excluirPropiedadesBorrado: excluirPropiedadesBorrado),
                 tamañoBatch: tamañoBatch);
@@ -186,11 +186,12 @@ namespace namasdev.Data.Entity
             }
         }
 
-        private static string[] CrearPropiedadesAExcluirEnModificacion(bool excluirPropiedadesCreado, bool excluirPropiedadesBorrado)
+        private static string[] CrearPropiedadesAExcluirEnModificacion<T>(bool excluirPropiedadesCreado, bool excluirPropiedadesBorrado)
         {
             var propiedades = new List<string>();
 
-            if (excluirPropiedadesCreado)
+            if (excluirPropiedadesCreado
+                && typeof(T).IsAssignableFrom(typeof(IEntidadCreado)))
             {
                 propiedades.AddRange(new[]
                 {
@@ -198,7 +199,8 @@ namespace namasdev.Data.Entity
                     nameof(IEntidadCreado.CreadoFecha)
                 });
             }
-            if (excluirPropiedadesBorrado)
+            if (excluirPropiedadesBorrado
+                && typeof(T).IsAssignableFrom(typeof(IEntidadBorrado)))
             {
                 propiedades.AddRange(new[]
                 {
