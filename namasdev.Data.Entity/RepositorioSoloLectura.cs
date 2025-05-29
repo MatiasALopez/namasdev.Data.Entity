@@ -23,11 +23,11 @@ namespace namasdev.Data.Entity
 
         public TEntidad Obtener(TId id)
         {
-            return Obtener(id, incluirBorrados: false);
+            return Obtener(id, 
+                incluirBorrados: false);
         }
 
-        public TEntidad Obtener(TId id,
-            bool incluirBorrados)
+        public TEntidad Obtener(TId id, bool incluirBorrados)
         {
             using (var ctx = new TDbContext())
             {
@@ -76,12 +76,9 @@ namespace namasdev.Data.Entity
         public IEnumerable<TEntidad> ObtenerLista(
             OrdenYPaginacionParametros op = null)
         {
-            using (var ctx = new TDbContext())
-            {
-                return ctx.Set<TEntidad>()
-                    .OrdenarYPaginar(op)
-                    .ToArray();
-            }
+            return ObtenerLista(
+                incluirBorrados: false,
+                op);
         }
 
         public IEnumerable<TEntidad> ObtenerLista(
