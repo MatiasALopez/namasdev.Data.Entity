@@ -29,16 +29,9 @@ namespace namasdev.Data.Entity
 
         public TEntidad Obtener(TId id, bool incluirBorrados)
         {
-            using (var ctx = new TDbContext())
-            {
-                var query = ctx.Set<TEntidad>()
-                    .Where(e => e.Id.Equals(id));
-
-                query = AplicarFiltroBorrados(query, incluirBorrados);
-
-                return query
-                    .FirstOrDefault();
-            }
+            return Obtener(id, 
+                incluirBorrados: incluirBorrados,
+                cargarPropiedades: (IEnumerable<string>)null);
         }
 
         public TEntidad Obtener(TId id,
@@ -85,16 +78,10 @@ namespace namasdev.Data.Entity
             bool incluirBorrados,
             OrdenYPaginacionParametros op = null)
         {
-            using (var ctx = new TDbContext())
-            {
-                var query = ctx.Set<TEntidad>().AsQueryable();
-
-                query = AplicarFiltroBorrados(query, incluirBorrados);
-
-                return query
-                    .OrdenarYPaginar(op)
-                    .ToArray();
-            }
+            return ObtenerLista(
+                incluirBorrados: incluirBorrados,
+                op: op,
+                cargarPropiedades: (IEnumerable<string>)null);
         }
 
         public IEnumerable<TEntidad> ObtenerLista(

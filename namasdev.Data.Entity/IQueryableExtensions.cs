@@ -44,6 +44,12 @@ namespace namasdev.Data.Entity
             return query;
         }
 
+        public static IQueryable<T> IncludeMultiple<T>(this IQueryable<T> query,
+            ICargaDatos<T> cargaDatos, bool condition)
+        {
+            return IncludeMultiple(query, cargaDatos.CrearPaths());
+        }
+
         public static IQueryable<T> IncludeMultipleIf<T>(this IQueryable<T> query,
             IEnumerable<string> paths, bool condition)
         {
@@ -58,6 +64,12 @@ namespace namasdev.Data.Entity
             return condition
                 ? query.IncludeMultiple(paths)
                 : query;
+        }
+
+        public static IQueryable<T> IncludeMultipleIf<T>(this IQueryable<T> query,
+            ICargaDatos<T> cargaDatos, bool condition)
+        {
+            return IncludeMultipleIf(query, cargaDatos.CrearPaths(), condition);
         }
     }
 }
