@@ -45,9 +45,12 @@ namespace namasdev.Data.Entity
         }
 
         public static IQueryable<T> IncludeMultiple<T>(this IQueryable<T> query,
-            ICargaDatos<T> cargaDatos)
+            ICargaPropiedades<T> cargarPropiedades)
+            where T : class
         {
-            return IncludeMultiple(query, cargaDatos.CrearPaths());
+            return cargarPropiedades != null
+                ? IncludeMultiple(query, cargarPropiedades.CrearPaths())
+                : query;
         }
 
         public static IQueryable<T> IncludeMultipleIf<T>(this IQueryable<T> query,
@@ -67,9 +70,12 @@ namespace namasdev.Data.Entity
         }
 
         public static IQueryable<T> IncludeMultipleIf<T>(this IQueryable<T> query,
-            ICargaDatos<T> cargaDatos, bool condition)
+            ICargaPropiedades<T> cargarPropiedades, bool condition)
+            where T : class
         {
-            return IncludeMultipleIf(query, cargaDatos.CrearPaths(), condition);
+            return condition 
+                ? IncludeMultiple(query, cargarPropiedades)
+                : query;
         }
     }
 }

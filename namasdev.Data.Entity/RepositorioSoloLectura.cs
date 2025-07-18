@@ -29,14 +29,14 @@ namespace namasdev.Data.Entity
 
         public TEntidad Obtener(TId id, bool incluirBorrados)
         {
-            return Obtener(id, 
-                incluirBorrados: incluirBorrados,
-                cargarPropiedades: (IEnumerable<string>)null);
+            return Obtener(id,
+                cargarPropiedades: (IEnumerable<string>)null,
+                incluirBorrados: incluirBorrados);
         }
 
         public TEntidad Obtener(TId id,
-            bool incluirBorrados = false,
-            IEnumerable<string> cargarPropiedades = null)
+            IEnumerable<string> cargarPropiedades,
+            bool incluirBorrados = false)
         {
             using (var ctx = new TDbContext())
             {
@@ -51,8 +51,24 @@ namespace namasdev.Data.Entity
         }
 
         public TEntidad Obtener(TId id,
-            bool incluirBorrados = false,
-            IEnumerable<Expression<Func<TEntidad, object>>> cargarPropiedades = null)
+            IEnumerable<Expression<Func<TEntidad, object>>> cargarPropiedades,
+            bool incluirBorrados = false)
+        {
+            using (var ctx = new TDbContext())
+            {
+                var query = ctx.Set<TEntidad>()
+                    .IncludeMultiple(cargarPropiedades)
+                    .Where(e => e.Id.Equals(id));
+
+                query = AplicarFiltroBorrados(query, incluirBorrados);
+
+                return query.FirstOrDefault();
+            }
+        }
+
+        public TEntidad Obtener(TId id,
+            ICargaPropiedades<TEntidad> cargarPropiedades,
+            bool incluirBorrados = false)
         {
             using (var ctx = new TDbContext())
             {
@@ -85,9 +101,9 @@ namespace namasdev.Data.Entity
         }
 
         public IEnumerable<TEntidad> ObtenerLista(
+            IEnumerable<string> cargarPropiedades,
             bool incluirBorrados = false,
-            OrdenYPaginacionParametros op = null, 
-            IEnumerable<string> cargarPropiedades = null)
+            OrdenYPaginacionParametros op = null)
         {
             using (var ctx = new TDbContext())
             {
@@ -103,9 +119,27 @@ namespace namasdev.Data.Entity
         }
 
         public IEnumerable<TEntidad> ObtenerLista(
+            IEnumerable<Expression<Func<TEntidad, object>>> cargarPropiedades,
             bool incluirBorrados = false,
-            OrdenYPaginacionParametros op = null,
-            IEnumerable<Expression<Func<TEntidad, object>>> cargarPropiedades = null)
+            OrdenYPaginacionParametros op = null)
+        {
+            using (var ctx = new TDbContext())
+            {
+                var query = ctx.Set<TEntidad>()
+                    .IncludeMultiple(cargarPropiedades);
+
+                query = AplicarFiltroBorrados(query, incluirBorrados);
+
+                return query
+                    .OrdenarYPaginar(op)
+                    .ToArray();
+            }
+        }
+
+        public IEnumerable<TEntidad> ObtenerLista(
+            ICargaPropiedades<TEntidad> cargarPropiedades,
+            bool incluirBorrados = false,
+            OrdenYPaginacionParametros op = null)
         {
             using (var ctx = new TDbContext())
             {

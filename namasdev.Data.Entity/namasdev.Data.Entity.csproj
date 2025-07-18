@@ -62,7 +62,6 @@
   <ItemGroup>
     <Compile Include="Config\EntidadBorradoConfigBase.cs" />
     <Compile Include="DbContextBase.cs" />
-    <Compile Include="ICargaDatos.cs" />
     <Compile Include="IQueryableExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DbContextHelper.cs" />
