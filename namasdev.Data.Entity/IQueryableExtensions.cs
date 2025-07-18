@@ -45,7 +45,7 @@ namespace namasdev.Data.Entity
         }
 
         public static IQueryable<T> IncludeMultiple<T>(this IQueryable<T> query,
-            ICargaDatos<T> cargaDatos, bool condition)
+            ICargaDatos<T> cargaDatos)
         {
             return IncludeMultiple(query, cargaDatos.CrearPaths());
         }
