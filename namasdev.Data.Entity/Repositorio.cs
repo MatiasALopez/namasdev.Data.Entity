@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Dynamic;
 
@@ -104,16 +103,6 @@ namespace namasdev.Data.Entity
         public virtual void EliminarPorId(TId id)
         {
             DbContextHelper<TDbContext>.Eliminar(new TEntidad { Id = id });
-        }
-
-        protected DbSet<TEntidad> EntidadSet(TDbContext ctx)
-        {
-            return ctx.Set<TEntidad>();
-        }
-
-        protected TDbContext CrearContext()
-        {
-            return new TDbContext();
         }
     }
 }

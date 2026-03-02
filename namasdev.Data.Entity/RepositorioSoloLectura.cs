@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -178,6 +179,16 @@ namespace namasdev.Data.Entity
             return ((IQueryable<IEntidadBorrado>)query)
                 .Where(e => !e.Borrado)
                 .Cast<TEntidad>();
+        }
+
+        protected DbSet<TEntidad> EntidadSet(TDbContext ctx)
+        {
+            return ctx.Set<TEntidad>();
+        }
+
+        protected TDbContext CrearContext()
+        {
+            return new TDbContext();
         }
     }
 }
