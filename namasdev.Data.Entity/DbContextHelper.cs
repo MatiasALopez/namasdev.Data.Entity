@@ -11,6 +11,8 @@ namespace namasdev.Data.Entity
     public class DbContextHelper<TDbContext>
         where TDbContext : DbContextBase, new()
     {
+        private const int TAMAÑO_BATCH_DEFAULT = 100;
+
         public static void Config()
         {
             Database.SetInitializer<TDbContext>(null);
@@ -23,7 +25,7 @@ namespace namasdev.Data.Entity
         }
 
         public static void AgregarBatch<T>(IEnumerable<T> entidades,
-            int tamañoBatch = 100)
+            int tamañoBatch = TAMAÑO_BATCH_DEFAULT)
             where T : class
         {
             AttachEnBatch(entidades, EntityState.Added, 
@@ -46,7 +48,7 @@ namespace namasdev.Data.Entity
         public static void ActualizarBatch<T>(IEnumerable<T> entidades,
             bool excluirPropiedadesCreado = true, 
             bool excluirPropiedadesBorrado = true,
-            int tamañoBatch = 100)
+            int tamañoBatch = TAMAÑO_BATCH_DEFAULT)
             where T : class
         {
             AttachEnBatch(
@@ -65,7 +67,7 @@ namespace namasdev.Data.Entity
         }
 
         public static void EliminarBatch<T>(IEnumerable<T> entidades,
-            int tamañoBatch = 100)
+            int tamañoBatch = TAMAÑO_BATCH_DEFAULT)
             where T : class
         {
             AttachEnBatch(entidades, EntityState.Deleted, 
@@ -105,7 +107,7 @@ namespace namasdev.Data.Entity
         }
 
         public static void ActualizarPropiedadesEnBatch<T>(IEnumerable<T> entidades, string[] propiedades,
-            int tamañoBatch = 100)
+            int tamañoBatch = TAMAÑO_BATCH_DEFAULT)
             where T : class
         {
             Validador.ValidarArgumentListaRequeridaYThrow(propiedades, nameof(propiedades), validarNoVacia: false);
@@ -128,7 +130,7 @@ namespace namasdev.Data.Entity
 
         private static void AttachEnBatch<T>(IEnumerable<T> entidades, EntityState state,
             string[] propiedadesAExcluirEnModificacion = null,
-            int tamañoBatch = 100)
+            int tamañoBatch = TAMAÑO_BATCH_DEFAULT)
             where T : class
         {
             AccionEnBatch(entidades,
@@ -137,7 +139,7 @@ namespace namasdev.Data.Entity
         }
 
         private static void AccionEnBatch<T>(IEnumerable<T> entidades, Action<TDbContext, T> accion,
-            int tamañoBatch = 100,
+            int tamañoBatch = TAMAÑO_BATCH_DEFAULT,
             Func<TDbContext> crearCtx = null) 
             where T : class
         {
@@ -148,7 +150,10 @@ namespace namasdev.Data.Entity
                 return;
             }
 
-            tamañoBatch = Math.Min(100, tamañoBatch);
+            if (tamañoBatch < 1)
+            {
+                tamañoBatch = TAMAÑO_BATCH_DEFAULT;
+            }
 
             crearCtx = crearCtx ?? (() => new TDbContext());
 
@@ -191,7 +196,7 @@ namespace namasdev.Data.Entity
             var propiedades = new List<string>();
 
             if (excluirPropiedadesCreado
-                && typeof(T).IsAssignableFrom(typeof(IEntidadCreado)))
+                && typeof(IEntidadCreado).IsAssignableFrom(typeof(T)))
             {
                 propiedades.AddRange(new[]
                 {
@@ -200,7 +205,7 @@ namespace namasdev.Data.Entity
                 });
             }
             if (excluirPropiedadesBorrado
-                && typeof(T).IsAssignableFrom(typeof(IEntidadBorrado)))
+                && typeof(IEntidadBorrado).IsAssignableFrom(typeof(T)))
             {
                 propiedades.AddRange(new[]
                 {

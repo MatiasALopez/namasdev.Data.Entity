@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>namasdev.Data.Entity</id>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <title>namasdev Data Entity</title>
     <authors>Matias Alberto Lopez</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

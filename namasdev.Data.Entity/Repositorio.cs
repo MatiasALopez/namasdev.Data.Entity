@@ -66,7 +66,7 @@ namespace namasdev.Data.Entity
 
         public virtual void ActualizarDatosBorrado(IEnumerable<TEntidad> entidades, int tamañoBatch = TAMAÑO_BATCH_DEFAULT)
         {
-            if (typeof(TEntidad) is IEntidadBorrado)
+            if (typeof(IEntidadBorrado).IsAssignableFrom(typeof(TEntidad)))
             {
                 DbContextHelper<TDbContext>.ActualizarPropiedadesEnBatch(entidades, 
                     new[] {
